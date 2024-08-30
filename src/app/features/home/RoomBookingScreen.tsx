@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image, Dimensions, ListRenderItem } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, SafeAreaView, Image, Dimensions, ListRenderItem, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors } from '../../commons';
 import { HeaderView } from '../../components';
@@ -137,7 +137,7 @@ const roomFake = [
             "19:30": "0"
         }
     },
-     {
+    {
         "name": "Teh-Halia",
         "capacity": "4",
         "level": "7",
@@ -547,6 +547,12 @@ const RoomBookingScreen = ({ navigation }) => {
     }
 
     const onOpen = () => {
+        if (showTimePicker) {
+            setShowTimePicker(false);
+        }
+        if (showDatePicker) {
+            setShowDatePicker(false);
+        }
         modalizeRef.current?.open();
     };
 
@@ -591,7 +597,7 @@ const RoomBookingScreen = ({ navigation }) => {
         return Object.values(availability).some(slot => slot === "1");
     };
 
-    const  countAvailability = (availability: ArrayLike<unknown> | { [s: string]: unknown; }) => {
+    const countAvailability = (availability: ArrayLike<unknown> | { [s: string]: unknown; }) => {
         return Object.values(availability).filter(slot => slot === "1").length;
     }
 
@@ -599,7 +605,7 @@ const RoomBookingScreen = ({ navigation }) => {
         const day = date.getDate();
         const month = date.toLocaleString('default', { month: 'short' });
         const year = date.getFullYear();
-    
+
         // Function to add suffix to day
         const getDayWithSuffix = (day) => {
             if (day > 3 && day < 21) return day + 'th'; // for 11th, 12th, 13th, etc.
@@ -610,17 +616,37 @@ const RoomBookingScreen = ({ navigation }) => {
                 default: return day + 'th';
             }
         };
-    
+
         const dayWithSuffix = getDayWithSuffix(day);
-        
+
         return `${dayWithSuffix} ${month} ${year}`;
     }
 
     const onPressCamera = async () => {
+        if (showTimePicker) {
+            setShowTimePicker(false);
+        }
+        if (showDatePicker) {
+            setShowDatePicker(false);
+        }
         const permissionAccept = await requestCameraPermission();
         if (permissionAccept) {
             navigation.navigate(SCREENS.SCAN_SCREEN.name);
         }
+    }
+
+    const onHandleDatePress = () => {
+        if (showTimePicker) {
+            setShowTimePicker(false);
+        }
+        setShowDatePicker(true)
+    }
+
+    const onHandleTimePress = () => {
+        if (showDatePicker) {
+            setShowDatePicker(false);
+        }
+        setShowTimePicker(true)
     }
 
     return (
@@ -635,35 +661,17 @@ const RoomBookingScreen = ({ navigation }) => {
 
             <View style={styles.container}>
 
-                <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                <TouchableOpacity onPress={() => onHandleDatePress()}>
                     <Text style={styles.label}>Date</Text>
                     <Text style={styles.value}>{formatDate(date)}</Text>
                     <View style={styles.underline} />
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+                <TouchableOpacity onPress={() => onHandleTimePress()}>
                     <Text style={styles.label}>Timeslot</Text>
-                    <Text style={styles.value}>{date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true})}</Text>
+                    <Text style={styles.value}>{date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}</Text>
                     <View style={styles.underline} />
                 </TouchableOpacity>
-
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={date}
-                        mode="date"
-                        display="default"
-                        onChange={onChangeDate}
-                    />
-                )}
-
-                {showTimePicker && (
-                    <DateTimePicker
-                        value={date}
-                        mode="time"
-                        display="default"
-                        onChange={onChangeTime}
-                    />
-                )}
 
                 <View style={{ paddingTop: 30, flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={[styles.roomsLabel, { color: Colors.textLight }]}>Rooms</Text>
@@ -682,6 +690,24 @@ const RoomBookingScreen = ({ navigation }) => {
                 contentContainerStyle={{ paddingHorizontal: 20 }}
             />
 
+            {showDatePicker && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display={Platform.OS == 'android' ? "default" : "spinner"}
+                    onChange={onChangeDate}
+                />
+            )}
+
+            {showTimePicker && (
+                <DateTimePicker
+                    value={date}
+                    mode="time"
+                    display={Platform.OS == 'android' ? "default" : "spinner"}
+                    onChange={onChangeTime}
+                />
+            )}
+
             <Modalize ref={modalizeRef} snapPoint={snapPoint} handlePosition='inside'>
                 <View style={{ height: snapPoint }}>
                     <View style={{ flex: 1 }}>
@@ -694,10 +720,10 @@ const RoomBookingScreen = ({ navigation }) => {
                         />
                     </View>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingBottom: 20 }}>
-                        <TouchableOpacity onPress={() => onReset()} style={[styles.btn, {backgroundColor: Colors.cancelBtn, width: '30%'}]}>
+                        <TouchableOpacity onPress={() => onReset()} style={[styles.btn, { backgroundColor: Colors.cancelBtn, width: '30%' }]}>
                             <Text style={styles.btnText}>Reset</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => onApply()} style={[styles.btn, {backgroundColor: Colors.confirmBtn, width: '60%'}]}>
+                        <TouchableOpacity onPress={() => onApply()} style={[styles.btn, { backgroundColor: Colors.confirmBtn, width: '60%' }]}>
                             <Text style={styles.btnText}>Apply</Text>
                         </TouchableOpacity>
                     </View>
