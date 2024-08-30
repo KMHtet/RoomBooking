@@ -19,7 +19,7 @@ export const HeaderView = (props: HeaderProps) => {
     <View style={styles.container}>
       <TouchableOpacity style={styles.rightContainer} onPress={onPressIconLeft}>
         {isIconLeft && (
-          <Image source={ImagesAsset.back} style={styles.rightIcon} />
+          <Image source={ImagesAsset.back} style={styles.leftIcon} />
         )}
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
@@ -50,6 +50,10 @@ const styles = StyleSheet.create({
   rightIcon: {
     width: 30,
     height: 30
+  },
+  leftIcon: {
+    width: 20,
+    height: 20
   },
   rightContainer: {
 

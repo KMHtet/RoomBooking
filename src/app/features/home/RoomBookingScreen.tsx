@@ -7,6 +7,7 @@ import { ImagesAsset } from '../../../assets';
 import { fetchRoomAvailability } from './HomeAPI';
 import { Modalize } from 'react-native-modalize';
 import { SCREENS } from '../../navigations';
+import { requestCameraPermission } from '../../../utils';
 
 const DEVICE_HEIGHT = Dimensions.get('window').height;
 const snapPoint = DEVICE_HEIGHT / 1.5;
@@ -564,6 +565,11 @@ const RoomBookingScreen = ({ navigation }) => {
 
     const onReset = () => {
         setSelectedSorting(SORTING_OPTION_DATA[0]);
+        const sortedRooms = [...rooms].sort((a, b) => {
+            return b.level - a.level
+        });
+        setRooms(sortedRooms);
+        modalizeRef.current?.close();
     }
 
     const onApply = () => {
@@ -610,8 +616,11 @@ const RoomBookingScreen = ({ navigation }) => {
         return `${dayWithSuffix} ${month} ${year}`;
     }
 
-    const onPressCamera = () => {
-        navigation.navigate(SCREENS.SCAN_SCREEN.name);
+    const onPressCamera = async () => {
+        const permissionAccept = await requestCameraPermission();
+        if (permissionAccept) {
+            navigation.navigate(SCREENS.SCAN_SCREEN.name);
+        }
     }
 
     return (
@@ -684,7 +693,7 @@ const RoomBookingScreen = ({ navigation }) => {
                             contentContainerStyle={{ padding: 20 }}
                         />
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingBottom: 100 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingBottom: 20 }}>
                         <TouchableOpacity onPress={() => onReset()} style={[styles.btn, {backgroundColor: Colors.cancelBtn, width: '30%'}]}>
                             <Text style={styles.btnText}>Reset</Text>
                         </TouchableOpacity>

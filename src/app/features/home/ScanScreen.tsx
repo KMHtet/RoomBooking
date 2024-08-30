@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, StyleSheet, SafeAreaView } from "react-native";
+import { Text, StyleSheet, SafeAreaView, TouchableOpacity } from "react-native";
 import {
     Camera,
     Code,
@@ -12,8 +12,10 @@ import { useCallback } from "react";
 import { useEffect } from "react";
 import { Alert } from "react-native";
 import { Linking } from "react-native";
+import { SCREENS } from "../../navigations";
+import { requestCameraPermission } from "../../../utils";
 
-const ScanScreen: React.FC = () => {
+const ScanScreen: React.FC = ({ navigation }) => {
 
     const device = useCameraDevice('back');
     const format = useCameraFormat(device, [
@@ -30,38 +32,19 @@ const ScanScreen: React.FC = () => {
         }
     }, []);
 
-    const requestCameraPermission = async (): Promise<boolean> => {
-        try {
-            const hasPermission = await Camera.getCameraPermissionStatus();
-
-            if (hasPermission === 'granted') {
-                return true;
-            }
-
-            const res = await Camera.requestCameraPermission();
-
-            if (res === 'granted') {
-                return true;
-            }
-        } catch (error) {
-            console.log(error);
-            Linking.openSettings();
-        }
-
-        return false;
-    };
-
     const permissionsCheck = async () => {
         const permissionAccept = await requestCameraPermission();
         if (permissionAccept) {
             return permissionAccept;
         }
         return Alert.alert("permission denied");
-    }
+    };
 
     const handleQrCode = useCallback(
         async (codes: Code[]) => {
-            console.warn("on scanned qr code", codes);
+            if (codes[0].value) {
+                navigation.replace(SCREENS.SUCCESS_WEB_VIEW_SCREEN.name);
+            }
         },
         [],
     );
@@ -73,7 +56,6 @@ const ScanScreen: React.FC = () => {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <Text>Hello</Text>
             <Camera
                 style={StyleSheet.absoluteFill}
                 format={format}

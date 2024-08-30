@@ -21,6 +21,10 @@ export const RootNavigation = () => {
                     name={SCREENS.SCAN_SCREEN.name}
                     component={SCREENS.SCAN_SCREEN.component}
                 />
+                <Stack.Screen
+                    name={SCREENS.SUCCESS_WEB_VIEW_SCREEN.name}
+                    component={SCREENS.SUCCESS_WEB_VIEW_SCREEN.component}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     )
